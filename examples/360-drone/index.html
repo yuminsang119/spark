@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-  <title>Spark • 360° Drone</title>
+  <title>Spark • DJI Avata 360° FPV</title>
   <style>
     body {
       margin: 0;
@@ -25,7 +25,7 @@
     .panel {
       position: absolute;
       background: rgba(0, 0, 0, 0.55);
-      border: 1px solid rgba(255, 255, 255, 0.25);
+      border: 1px solid rgba(255, 255, 255, 0.2);
       border-radius: 6px;
       padding: 10px 14px;
       font-size: 12px;
@@ -39,16 +39,32 @@
       top: 16px;
       left: 16px;
       font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
-    #title .label { color: #ff6b78; }
+    #title .label { color: #00e5ff; }
+
+    #mode-badge {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 3px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+    }
+    #mode-badge.normal  { background: #2ecc71; color: #000; }
+    #mode-badge.sport   { background: #f39c12; color: #000; }
+    #mode-badge.manual  { background: #e74c3c; color: #fff; }
 
     #instructions {
       top: 16px;
       right: 16px;
       text-align: right;
-      max-width: 260px;
+      max-width: 280px;
       text-transform: none;
       letter-spacing: 0.02em;
+      line-height: 1.7;
     }
     #instructions kbd {
       display: inline-block;
@@ -64,7 +80,7 @@
     #telemetry {
       bottom: 16px;
       left: 16px;
-      min-width: 180px;
+      min-width: 190px;
     }
     #telemetry .row {
       display: flex;
@@ -73,7 +89,7 @@
       margin: 3px 0;
     }
     #telemetry .row .val {
-      color: #ff9aa4;
+      color: #80d8ff;
       font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
       font-size: 12px;
       text-transform: none;
@@ -90,7 +106,7 @@
       border-radius: 50%;
       overflow: hidden;
       border: 2px solid rgba(255, 255, 255, 0.35);
-      background: #222;
+      background: #111;
       box-shadow: 0 0 20px rgba(0, 0, 0, 0.6);
     }
     #attitude .horizon {
@@ -100,7 +116,7 @@
       width: 500%;
       height: 500%;
       transform-origin: center;
-      background: linear-gradient(to bottom, #4fa3d9 0%, #4fa3d9 50%, #8a5a2b 50%, #8a5a2b 100%);
+      background: linear-gradient(to bottom, #2980b9 0%, #2980b9 50%, #8a5a2b 50%, #8a5a2b 100%);
     }
     #attitude .hlines {
       position: absolute;
@@ -118,18 +134,18 @@
     #attitude .cross::after {
       content: "";
       position: absolute;
-      background: #ffdc4a;
+      background: #00e5ff;
     }
     #attitude .cross::before {
-      left: 30%;
-      right: 30%;
+      left: 28%;
+      right: 28%;
       top: 50%;
       height: 2px;
       transform: translateY(-50%);
     }
     #attitude .cross::after {
-      top: 44%;
-      bottom: 44%;
+      top: 42%;
+      bottom: 42%;
       left: 50%;
       width: 2px;
       transform: translateX(-50%);
@@ -142,39 +158,66 @@
       text-align: center;
       font-size: 10px;
       letter-spacing: 0.1em;
-      color: rgba(255, 255, 255, 0.7);
+      color: rgba(255, 255, 255, 0.6);
     }
 
-    /* Crosshair */
+    /* FPV crosshair - DJI style center dot + brackets */
     #crosshair {
       position: absolute;
       top: 50%;
       left: 50%;
-      width: 26px;
-      height: 26px;
-      margin-left: -13px;
-      margin-top: -13px;
-      opacity: 0.8;
+      width: 40px;
+      height: 40px;
+      margin-left: -20px;
+      margin-top: -20px;
+      opacity: 0.7;
     }
-    #crosshair::before,
-    #crosshair::after {
-      content: "";
+    #crosshair .dot {
       position: absolute;
-      background: #ff6b78;
+      top: 50%; left: 50%;
+      width: 4px; height: 4px;
+      margin: -2px 0 0 -2px;
+      background: #00e5ff;
+      border-radius: 50%;
     }
-    #crosshair::before {
-      left: 0;
-      right: 0;
-      top: 50%;
-      height: 2px;
-      transform: translateY(-50%);
+    #crosshair .bracket {
+      position: absolute;
+      border: 1.5px solid rgba(255, 255, 255, 0.6);
     }
-    #crosshair::after {
-      top: 0;
-      bottom: 0;
+    #crosshair .bracket.tl { top: 0; left: 0; width: 10px; height: 10px; border-right: none; border-bottom: none; }
+    #crosshair .bracket.tr { top: 0; right: 0; width: 10px; height: 10px; border-left: none; border-bottom: none; }
+    #crosshair .bracket.bl { bottom: 0; left: 0; width: 10px; height: 10px; border-right: none; border-top: none; }
+    #crosshair .bracket.br { bottom: 0; right: 0; width: 10px; height: 10px; border-left: none; border-top: none; }
+
+    /* Speed bar */
+    #speed-bar {
+      position: absolute;
       left: 50%;
-      width: 2px;
+      bottom: 40px;
       transform: translateX(-50%);
+      width: 200px;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.12);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    #speed-bar .fill {
+      height: 100%;
+      width: 0%;
+      background: #00e5ff;
+      border-radius: 2px;
+      transition: background 0.2s;
+    }
+    #speed-bar .fill.boost { background: #f39c12; }
+    #speed-bar-label {
+      position: absolute;
+      left: 50%;
+      bottom: 50px;
+      transform: translateX(-50%);
+      font-size: 11px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      color: rgba(255, 255, 255, 0.7);
+      letter-spacing: 0.05em;
     }
 
     #loading {
@@ -195,40 +238,53 @@
       #instructions { display: none; }
       #attitude { width: 110px; height: 110px; }
       #telemetry { min-width: 140px; font-size: 11px; }
+      #speed-bar { width: 140px; }
     }
   </style>
 </head>
 
 <body>
-  <div id="loading">LOADING DRONE…</div>
+  <div id="loading">INITIALIZING FPV…</div>
 
   <div id="hud">
-    <div id="title" class="panel"><span class="label">360°</span> DRONE</div>
+    <div id="title" class="panel">
+      <span><span class="label">AVATA</span> 360° FPV</span>
+      <span id="mode-badge" class="normal">N</span>
+    </div>
 
     <div id="instructions" class="panel">
-      <div><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> move</div>
-      <div><kbd>Space</kbd> ascend · <kbd>Shift</kbd> descend</div>
-      <div><kbd>Q</kbd><kbd>E</kbd> roll · drag mouse to pitch/yaw</div>
-      <div><kbd>R</kbd> level · <kbd>B</kbd> boost · <kbd>T</kbd> flip 180°</div>
+      <div><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> move · <kbd>Space</kbd> up · <kbd>Shift</kbd> down</div>
+      <div><kbd>Q</kbd><kbd>E</kbd> roll · mouse drag pitch/yaw</div>
+      <div><kbd>1</kbd> Normal · <kbd>2</kbd> Sport · <kbd>3</kbd> Manual (360°)</div>
+      <div><kbd>B</kbd> boost · <kbd>T</kbd> turtle flip · <kbd>R</kbd> level</div>
     </div>
 
     <div id="telemetry" class="panel">
-      <div class="row"><span>Speed</span><span class="val" id="t-speed">0.00 m/s</span></div>
-      <div class="row"><span>Altitude</span><span class="val" id="t-alt">0.00 m</span></div>
+      <div class="row"><span>Mode</span><span class="val" id="t-mode">NORMAL</span></div>
+      <div class="row"><span>Speed</span><span class="val" id="t-speed">0.0 m/s</span></div>
+      <div class="row"><span>Alt</span><span class="val" id="t-alt">0.0 m</span></div>
       <div class="row"><span>Heading</span><span class="val" id="t-heading">0°</span></div>
       <div class="row"><span>Pitch</span><span class="val" id="t-pitch">0°</span></div>
       <div class="row"><span>Roll</span><span class="val" id="t-roll">0°</span></div>
-      <div class="row"><span>Boost</span><span class="val" id="t-boost">OFF</span></div>
     </div>
 
     <div id="attitude">
       <div class="horizon" id="attitude-horizon"></div>
       <div class="hlines"></div>
       <div class="cross"></div>
-      <div class="label">ATTITUDE</div>
+      <div class="label">ATT</div>
     </div>
 
-    <div id="crosshair"></div>
+    <div id="crosshair">
+      <div class="dot"></div>
+      <div class="bracket tl"></div>
+      <div class="bracket tr"></div>
+      <div class="bracket bl"></div>
+      <div class="bracket br"></div>
+    </div>
+
+    <div id="speed-bar-label">0.0 m/s</div>
+    <div id="speed-bar"><div class="fill" id="speed-fill"></div></div>
   </div>
 
   <script type="importmap">
@@ -244,10 +300,12 @@
     import { SparkRenderer, SplatMesh } from "@sparkjsdev/spark";
     import { getAssetFileURL } from "../js/get-asset-url.js";
 
-    // -- Scene setup -------------------------------------------------------
+    // =====================================================================
+    //  Scene
+    // =====================================================================
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(
-      70, window.innerWidth / window.innerHeight, 0.05, 1000,
+      100, window.innerWidth / window.innerHeight, 0.05, 1000,
     );
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
@@ -260,112 +318,155 @@
       renderer.setSize(window.innerWidth, window.innerHeight);
     });
 
-    // The drone body is a Group that holds the camera. This lets us rotate
-    // the "drone" independently of how the camera might be offset.
     const drone = new THREE.Group();
-    drone.position.set(0, 1.2, 2.5);
+    drone.position.set(0, 1.6, 2.5);
     drone.add(camera);
     scene.add(drone);
 
     const spark = new SparkRenderer({ renderer });
     scene.add(spark);
 
-    // -- Environment splat -------------------------------------------------
+    // =====================================================================
+    //  Splat environment
+    // =====================================================================
     const splatURL = await getAssetFileURL("valley.spz");
     const environment = new SplatMesh({ url: splatURL });
-    environment.quaternion.set(1, 0, 0, 0); // flip to match world up
+    environment.quaternion.set(1, 0, 0, 0);
     environment.position.set(0, 0, -3);
     scene.add(environment);
 
-    // Tiny "drone body" reference in front of the camera so the user feels
-    // they are piloting a drone. Four rotating propellers form an X shape.
+    // =====================================================================
+    //  Avata cinewhoop body — X-frame + ducted prop guards + spinning discs
+    // =====================================================================
     const droneBody = new THREE.Group();
-    const armMat = new THREE.MeshBasicMaterial({ color: 0x222222 });
-    const arm = new THREE.Mesh(
-      new THREE.BoxGeometry(0.28, 0.01, 0.01), armMat,
-    );
-    const arm2 = arm.clone();
-    arm.rotation.y = Math.PI / 4;
-    arm2.rotation.y = -Math.PI / 4;
-    droneBody.add(arm, arm2);
 
-    const propMat = new THREE.MeshBasicMaterial({
-      color: 0xff6b78, transparent: true, opacity: 0.65,
+    const frameMat = new THREE.MeshBasicMaterial({ color: 0x1a1a1a });
+    const ductMat = new THREE.MeshBasicMaterial({
+      color: 0x333333, transparent: true, opacity: 0.6, side: THREE.DoubleSide,
     });
-    const propellers = [];
-    const propPositions = [
-      [0.1, 0, -0.1], [-0.1, 0, -0.1],
-      [0.1, 0, 0.1], [-0.1, 0, 0.1],
+    const propDiscMat = new THREE.MeshBasicMaterial({
+      color: 0x00e5ff, transparent: true, opacity: 0.35, side: THREE.DoubleSide,
+    });
+
+    // X-frame arms
+    const armGeo = new THREE.BoxGeometry(0.34, 0.008, 0.016);
+    const arm1 = new THREE.Mesh(armGeo, frameMat);
+    const arm2 = arm1.clone();
+    arm1.rotation.y = Math.PI / 4;
+    arm2.rotation.y = -Math.PI / 4;
+    droneBody.add(arm1, arm2);
+
+    // Center body plate
+    const bodyPlate = new THREE.Mesh(
+      new THREE.BoxGeometry(0.07, 0.012, 0.09), frameMat,
+    );
+    droneBody.add(bodyPlate);
+
+    // Camera housing on the front
+    const camHousing = new THREE.Mesh(
+      new THREE.BoxGeometry(0.035, 0.025, 0.02),
+      new THREE.MeshBasicMaterial({ color: 0x00e5ff, transparent: true, opacity: 0.8 }),
+    );
+    camHousing.position.set(0, 0.005, -0.055);
+    droneBody.add(camHousing);
+
+    const motorPositions = [
+      [0.12, 0, -0.12], [-0.12, 0, -0.12],
+      [0.12, 0, 0.12],  [-0.12, 0, 0.12],
     ];
-    for (const [x, y, z] of propPositions) {
-      const p = new THREE.Mesh(
-        new THREE.RingGeometry(0.025, 0.04, 20), propMat,
+
+    const propellers = [];
+    for (const [x, y, z] of motorPositions) {
+      // Prop guard duct (torus)
+      const duct = new THREE.Mesh(
+        new THREE.TorusGeometry(0.055, 0.008, 8, 24), ductMat,
       );
-      p.rotation.x = -Math.PI / 2;
-      p.position.set(x, y, z);
-      droneBody.add(p);
-      propellers.push(p);
+      duct.rotation.x = Math.PI / 2;
+      duct.position.set(x, y, z);
+      droneBody.add(duct);
+
+      // Spinning prop disc
+      const disc = new THREE.Mesh(
+        new THREE.CircleGeometry(0.048, 20), propDiscMat,
+      );
+      disc.rotation.x = -Math.PI / 2;
+      disc.position.set(x, y + 0.003, z);
+      droneBody.add(disc);
+      propellers.push(disc);
     }
-    // Place the body just below and in front of the camera so it sits at
-    // the bottom of the screen like a cockpit element.
-    droneBody.position.set(0, -0.12, -0.3);
+
+    droneBody.position.set(0, -0.13, -0.32);
     camera.add(droneBody);
 
-    // -- Drone flight controls --------------------------------------------
-    // We use quaternion multiplication (not Euler) so the drone has no
-    // gimbal lock and can roll, loop and spin freely -- a true 360° drone.
+    // =====================================================================
+    //  Flight modes — Normal / Sport / Manual
+    // =====================================================================
+    const MODES = {
+      NORMAL: {
+        name: "NORMAL", badge: "N", cls: "normal",
+        maxSpeed: 3.5, boostMult: 2.0,
+        accel: 6.0, drag: 3.5,
+        pitchYawRate: 0.003, keyRotRate: 1.2, rollRate: 0.8,
+        maxPitch: 30, maxRoll: 25,
+        autoLevel: true, levelRate: 4.0,
+        fov: 100,
+      },
+      SPORT: {
+        name: "SPORT", badge: "S", cls: "sport",
+        maxSpeed: 8.0, boostMult: 2.5,
+        accel: 12.0, drag: 2.5,
+        pitchYawRate: 0.004, keyRotRate: 1.8, rollRate: 1.6,
+        maxPitch: 50, maxRoll: 50,
+        autoLevel: true, levelRate: 2.5,
+        fov: 110,
+      },
+      MANUAL: {
+        name: "MANUAL", badge: "M", cls: "manual",
+        maxSpeed: 14.0, boostMult: 2.0,
+        accel: 18.0, drag: 1.8,
+        pitchYawRate: 0.005, keyRotRate: 2.4, rollRate: 2.8,
+        maxPitch: Infinity, maxRoll: Infinity,
+        autoLevel: false, levelRate: 0,
+        fov: 120,
+      },
+    };
 
-    const MOVE_SPEED = 3.0;        // meters / second
-    const BOOST_MULT = 3.0;
-    const BRAKE_MULT = 0.35;
-    const PITCH_YAW_SPEED = 0.0025;  // radians per mouse pixel
-    const KEY_ROLL_SPEED = 1.6;    // radians / second
-    const KEY_PITCH_SPEED = 1.2;
-    const KEY_YAW_SPEED = 1.2;
-    const LEVEL_LERP = 3.0;        // rate to auto-level when pressing R
+    let mode = MODES.NORMAL;
 
+    // =====================================================================
+    //  Input
+    // =====================================================================
     const keys = Object.create(null);
     window.addEventListener("keydown", (e) => {
       keys[e.code] = true;
-      // Prevent space from scrolling the page
       if (e.code === "Space") e.preventDefault();
     });
     window.addEventListener("keyup", (e) => { keys[e.code] = false; });
     window.addEventListener("blur", () => { for (const k in keys) keys[k] = false; });
 
-    // Mouse look (pointer drag). Pointer lock would feel nicer but drag is
-    // friendlier for casual examples.
     let dragging = false;
-    let lastX = 0;
-    let lastY = 0;
+    let lastX = 0, lastY = 0;
     renderer.domElement.addEventListener("pointerdown", (e) => {
       dragging = true;
-      lastX = e.clientX;
-      lastY = e.clientY;
+      lastX = e.clientX; lastY = e.clientY;
       renderer.domElement.setPointerCapture(e.pointerId);
     });
     const endDrag = (e) => {
       if (!dragging) return;
       dragging = false;
-      try { renderer.domElement.releasePointerCapture(e.pointerId); } catch { /* ignore */ }
+      try { renderer.domElement.releasePointerCapture(e.pointerId); } catch {}
     };
     renderer.domElement.addEventListener("pointerup", endDrag);
     renderer.domElement.addEventListener("pointercancel", endDrag);
 
-    // Accumulate pointer deltas between frames so we apply them at fixed dt.
-    let pendingYaw = 0;
-    let pendingPitch = 0;
+    let pendingYaw = 0, pendingPitch = 0;
     renderer.domElement.addEventListener("pointermove", (e) => {
       if (!dragging) return;
-      const dx = e.clientX - lastX;
-      const dy = e.clientY - lastY;
-      lastX = e.clientX;
-      lastY = e.clientY;
-      pendingYaw   += -dx * PITCH_YAW_SPEED;
-      pendingPitch += -dy * PITCH_YAW_SPEED;
+      pendingYaw   += -(e.clientX - lastX);
+      pendingPitch += -(e.clientY - lastY);
+      lastX = e.clientX; lastY = e.clientY;
     });
 
-    // One-shot key actions (trigger once per press)
     const lastKeyState = Object.create(null);
     function consumeOnce(code) {
       const now = !!keys[code];
@@ -374,27 +475,43 @@
       return now && !was;
     }
 
-    // Reusable scratch objects to avoid allocations
+    // =====================================================================
+    //  Physics state
+    // =====================================================================
+    const vel = new THREE.Vector3();          // world-space velocity
     const moveLocal = new THREE.Vector3();
     const moveWorld = new THREE.Vector3();
-    const velocity = new THREE.Vector3();
-    const deltaQuat = new THREE.Quaternion();
-    const flipQuat = new THREE.Quaternion();
+    const displayVel = new THREE.Vector3();
     const axisTmp = new THREE.Vector3();
+    const deltaQuat = new THREE.Quaternion();
     const worldUp = new THREE.Vector3(0, 1, 0);
 
-    // -- HUD telemetry references -----------------------------------------
+    // =====================================================================
+    //  HUD references
+    // =====================================================================
     const hud = {
-      speed: document.getElementById("t-speed"),
-      alt: document.getElementById("t-alt"),
+      mode:    document.getElementById("t-mode"),
+      speed:   document.getElementById("t-speed"),
+      alt:     document.getElementById("t-alt"),
       heading: document.getElementById("t-heading"),
-      pitch: document.getElementById("t-pitch"),
-      roll: document.getElementById("t-roll"),
-      boost: document.getElementById("t-boost"),
+      pitch:   document.getElementById("t-pitch"),
+      roll:    document.getElementById("t-roll"),
       horizon: document.getElementById("attitude-horizon"),
+      badge:   document.getElementById("mode-badge"),
+      speedFill:  document.getElementById("speed-fill"),
+      speedLabel: document.getElementById("speed-bar-label"),
     };
 
-    // Hide loader once first frame renders
+    function setMode(m) {
+      mode = m;
+      hud.badge.textContent = m.badge;
+      hud.badge.className = m.cls;
+      hud.mode.textContent = m.name;
+      hud.mode.style.color = m.cls === "normal" ? "#2ecc71"
+        : m.cls === "sport" ? "#f39c12" : "#e74c3c";
+    }
+    setMode(MODES.NORMAL);
+
     let loaderHidden = false;
     function hideLoader() {
       if (loaderHidden) return;
@@ -402,29 +519,34 @@
       document.getElementById("loading").classList.add("hidden");
     }
 
-    // -- Animation loop ----------------------------------------------------
+    // =====================================================================
+    //  Animation loop
+    // =====================================================================
     let lastTime = performance.now();
-    let prevPos = drone.position.clone();
+    let currentFov = mode.fov;
 
     function animate(time) {
       const dt = Math.min(0.05, (time - lastTime) / 1000) || 0;
       lastTime = time;
 
-      // --- Rotation input (mouse + keyboard) ---
-      let yaw = pendingYaw;   pendingYaw = 0;
-      let pitch = pendingPitch; pendingPitch = 0;
-      let roll = 0;
+      // --- Mode switch ---
+      if (consumeOnce("Digit1")) setMode(MODES.NORMAL);
+      if (consumeOnce("Digit2")) setMode(MODES.SPORT);
+      if (consumeOnce("Digit3")) setMode(MODES.MANUAL);
 
-      if (keys.KeyQ) roll += KEY_ROLL_SPEED * dt;
-      if (keys.KeyE) roll -= KEY_ROLL_SPEED * dt;
-      if (keys.ArrowUp)    pitch += KEY_PITCH_SPEED * dt;
-      if (keys.ArrowDown)  pitch -= KEY_PITCH_SPEED * dt;
-      if (keys.ArrowLeft)  yaw   += KEY_YAW_SPEED * dt;
-      if (keys.ArrowRight) yaw   -= KEY_YAW_SPEED * dt;
+      // --- Rotation ---
+      let yaw   = pendingYaw   * mode.pitchYawRate;  pendingYaw = 0;
+      let pitch = pendingPitch * mode.pitchYawRate;   pendingPitch = 0;
+      let roll  = 0;
 
-      // Apply rotations in the drone's local frame (quaternion multiply).
-      // This gives a true 6DOF feel with no gimbal lock - the drone can
-      // loop, barrel-roll and yaw in any orientation.
+      if (keys.KeyQ) roll += mode.rollRate * dt;
+      if (keys.KeyE) roll -= mode.rollRate * dt;
+      if (keys.ArrowUp)    pitch += mode.keyRotRate * dt;
+      if (keys.ArrowDown)  pitch -= mode.keyRotRate * dt;
+      if (keys.ArrowLeft)  yaw   += mode.keyRotRate * dt;
+      if (keys.ArrowRight) yaw   -= mode.keyRotRate * dt;
+
+      // Apply rotation via quaternion multiply (gimbal-lock free)
       if (yaw !== 0) {
         deltaQuat.setFromAxisAngle(axisTmp.set(0, 1, 0), yaw);
         drone.quaternion.multiply(deltaQuat);
@@ -438,74 +560,99 @@
         drone.quaternion.multiply(deltaQuat);
       }
 
-      // 'R' auto-levels the drone (lerp toward world-up orientation while
-      // preserving current heading).
+      // Angle-limit + auto-level for Normal / Sport
+      if (mode.autoLevel) {
+        const euler = new THREE.Euler().setFromQuaternion(drone.quaternion, "YXZ");
+        const limit = (deg) => deg * Math.PI / 180;
+        const clampedX = Math.max(-limit(mode.maxPitch), Math.min(limit(mode.maxPitch), euler.x));
+        const clampedZ = Math.max(-limit(mode.maxRoll),  Math.min(limit(mode.maxRoll),  euler.z));
+
+        // Smoothly return pitch/roll toward zero when no input
+        const noRotInput = Math.abs(pitch) < 1e-6 && Math.abs(roll) < 1e-6;
+        const lr = mode.levelRate * dt;
+        euler.x = noRotInput ? clampedX * Math.exp(-lr) : clampedX;
+        euler.z = noRotInput ? clampedZ * Math.exp(-lr) : clampedZ;
+        drone.quaternion.setFromEuler(euler);
+      }
+
+      // R = emergency level
       if (keys.KeyR) {
-        const heading = new THREE.Vector3(0, 0, -1)
-          .applyQuaternion(drone.quaternion);
-        heading.y = 0;
-        if (heading.lengthSq() < 1e-6) heading.set(0, 0, -1);
-        heading.normalize();
+        const fwd = new THREE.Vector3(0, 0, -1).applyQuaternion(drone.quaternion);
+        fwd.y = 0;
+        if (fwd.lengthSq() < 1e-6) fwd.set(0, 0, -1);
+        fwd.normalize();
         const target = new THREE.Quaternion().setFromRotationMatrix(
-          new THREE.Matrix4().lookAt(
-            new THREE.Vector3(), heading.clone().negate(), worldUp,
-          ),
+          new THREE.Matrix4().lookAt(new THREE.Vector3(), fwd.negate(), worldUp),
         );
-        drone.quaternion.slerp(target, Math.min(1, LEVEL_LERP * dt));
+        drone.quaternion.slerp(target, Math.min(1, 5.0 * dt));
       }
 
-      // 'T' flips the drone 180° around its local right axis (a quick
-      // front-flip showcase of true 360° rotation).
+      // T = turtle flip (180° front-flip)
       if (consumeOnce("KeyT")) {
-        flipQuat.setFromAxisAngle(axisTmp.set(1, 0, 0), Math.PI);
-        drone.quaternion.multiply(flipQuat);
+        deltaQuat.setFromAxisAngle(axisTmp.set(1, 0, 0), Math.PI);
+        drone.quaternion.multiply(deltaQuat);
       }
 
-      // --- Movement input ---
+      // --- Momentum-based movement ---
+      const boost = !!keys.KeyB;
+      const maxSpeed = mode.maxSpeed * (boost ? mode.boostMult : 1.0);
+
       moveLocal.set(0, 0, 0);
       if (keys.KeyW) moveLocal.z -= 1;
       if (keys.KeyS) moveLocal.z += 1;
       if (keys.KeyA) moveLocal.x -= 1;
       if (keys.KeyD) moveLocal.x += 1;
-      if (keys.Space) moveLocal.y += 1;
-      if (keys.ShiftLeft || keys.ShiftRight) moveLocal.y -= 1;
-
-      const boost = !!keys.KeyB;
-      const brake = !!keys.ControlLeft || !!keys.ControlRight;
-      let speed = MOVE_SPEED;
-      if (boost) speed *= BOOST_MULT;
-      if (brake) speed *= BRAKE_MULT;
+      if (keys.Space)                                moveLocal.y += 1;
+      if (keys.ShiftLeft || keys.ShiftRight)         moveLocal.y -= 1;
 
       if (moveLocal.lengthSq() > 0) {
-        moveLocal.normalize().multiplyScalar(speed * dt);
+        moveLocal.normalize();
         moveWorld.copy(moveLocal).applyQuaternion(drone.quaternion);
-        drone.position.add(moveWorld);
+        moveWorld.multiplyScalar(mode.accel * dt);
+        vel.add(moveWorld);
       }
 
+      // Drag / air resistance
+      const dragFactor = Math.exp(-mode.drag * dt);
+      vel.multiplyScalar(dragFactor);
+
+      // Clamp to maxSpeed
+      if (vel.length() > maxSpeed) {
+        vel.normalize().multiplyScalar(maxSpeed);
+      }
+
+      drone.position.addScaledVector(vel, dt);
+
       // --- Animate propellers ---
-      const spin = (boost ? 40 : 20) * dt;
-      for (const p of propellers) p.rotation.z += spin;
+      const rpm = boost ? 50 : (vel.length() > 0.5 ? 30 : 18);
+      for (const p of propellers) p.rotation.z += rpm * dt;
 
-      // --- Update telemetry ---
-      velocity.subVectors(drone.position, prevPos).multiplyScalar(1 / Math.max(dt, 1e-4));
-      prevPos.copy(drone.position);
+      // --- Smooth FOV transition ---
+      const targetFov = mode.fov + (boost ? 10 : 0);
+      currentFov += (targetFov - currentFov) * Math.min(1, 4 * dt);
+      camera.fov = currentFov;
+      camera.updateProjectionMatrix();
 
-      const e = new THREE.Euler().setFromQuaternion(drone.quaternion, "YXZ");
-      const headingDeg = ((-e.y * 180 / Math.PI) % 360 + 360) % 360;
-      const pitchDeg = e.x * 180 / Math.PI;
-      const rollDeg = e.z * 180 / Math.PI;
+      // --- Telemetry ---
+      const speed = vel.length();
+      const euler = new THREE.Euler().setFromQuaternion(drone.quaternion, "YXZ");
+      const headingDeg = ((-euler.y * 180 / Math.PI) % 360 + 360) % 360;
+      const pitchDeg   = euler.x * 180 / Math.PI;
+      const rollDeg    = euler.z * 180 / Math.PI;
 
-      hud.speed.textContent = `${velocity.length().toFixed(2)} m/s`;
-      hud.alt.textContent = `${drone.position.y.toFixed(2)} m`;
+      hud.speed.textContent   = `${speed.toFixed(1)} m/s`;
+      hud.alt.textContent     = `${drone.position.y.toFixed(1)} m`;
       hud.heading.textContent = `${headingDeg.toFixed(0)}°`;
-      hud.pitch.textContent = `${pitchDeg.toFixed(0)}°`;
-      hud.roll.textContent = `${rollDeg.toFixed(0)}°`;
-      hud.boost.textContent = boost ? "ON" : (brake ? "BRAKE" : "OFF");
-      hud.boost.style.color = boost ? "#ffdc4a" : (brake ? "#8ac4ff" : "#ff9aa4");
+      hud.pitch.textContent   = `${pitchDeg.toFixed(0)}°`;
+      hud.roll.textContent    = `${rollDeg.toFixed(0)}°`;
 
-      // Update attitude indicator: CSS transform shifts a horizon texture
-      // based on pitch and rotates it by roll. We clamp translate so the
-      // horizon doesn't fully leave the gauge during inverted flight.
+      // Speed bar
+      const pct = Math.min(100, (speed / maxSpeed) * 100);
+      hud.speedFill.style.width = `${pct}%`;
+      hud.speedFill.className = boost ? "fill boost" : "fill";
+      hud.speedLabel.textContent = `${speed.toFixed(1)} m/s`;
+
+      // Attitude indicator
       const translatePct = Math.max(-70, Math.min(70, pitchDeg * 0.8));
       hud.horizon.style.transform =
         `translate(0, ${translatePct}%) rotate(${-rollDeg}deg)`;
